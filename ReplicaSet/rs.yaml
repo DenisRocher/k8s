@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-test
+  labels:
+    app: rs-test
+    tier: frontend
+# Especificaciones del ReplicaSet
+spec:
+  # modify replicas according to your case
+  replicas: 2
+  #Indica qué label va a buscar en pod y vamos a usar
+  selector:
+    matchLabels:
+      app: pod-label
+  # A continuación viene la información propia del Pod
+  template:
+    metadata:
+      name: twocontainer
+      labels:
+        app: pod-label
+        tier: frontend
+    spec:
+      containers:
+      - name: container-1
+        image: python:3.6-alpine
+        command: ['sh', '-c', 'echo container-1 > index.html && python -m http.server 8081']
+      - name: container-2
+        image: python:3.6-alpine
+        command: ['sh', '-c', 'echo container-2 > index.html && python -m http.server 8082']
