@@ -1,0 +1,70 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+   name: dev
+   labels:
+      name: dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+   name: prod
+   labels:
+      name: prod
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-dev
+  namespace: dev
+  labels:
+    app: frontend
+  annotations:
+    kubernetes.io/change-cause: "Se hace despliegue en namespace dev"
+# Es el manifiesto del ReplicaSet
+spec:
+  replicas: 1
+  # revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    # Manifiesto de los Pods
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-prod
+  namespace: prod
+  labels:
+    app: frontend
+  annotations:
+    kubernetes.io/change-cause: "Se hace despliegue en namespace prod"
+# Es el manifiesto del ReplicaSet
+spec:
+  replicas: 2
+  # revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    # Manifiesto de los Pods
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
