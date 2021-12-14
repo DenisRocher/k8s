@@ -9,14 +9,14 @@ metadata:
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: mem-limit-range
+  name: min-max
   namespace: dev
 spec:
   limits:
-  - default:
-      memory: 512Mi
+  - max:
+      memory: 1Gi
       cpu: 1
-    defaultRequest:
-      memory: 256Mi
-      cpu: 0.5
+    min:
+      memory: 100Mi
+      cpu: 100m
     type: Container
