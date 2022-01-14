@@ -1,0 +1,36 @@
+## RBAC
+minikube start --vm-driver=none  --extra-config=apiserver.authorization-mode=RBAC
+
+## Create keys and sign
+openssl genrsa -out denisrocher.key 2048
+openssl req -new -key denisrocher.key -out denisrocher.csr -subj "/CN=denisrocher/O=dev"
+
+## LA RUTA DE LOS CERTIFICADOS PARA AUTENTIFICACIÓN Y KEY SE ENCUENTRA CON EL COMANDO kubectl config view 
+### POR EJEMPLO: 
+###     certificate-authority: /Users/denisrocher/.minikube/ca.crt
+
+sudo openssl x509 -req -in denisrocher.csr -CA /Users/denisrocher/.minikube/ca.crt -CAkey /Users/denisrocher/.minikube/ca.key -CAcreateserial -out denisrocher.crt -days 500
+openssl x509 -in  denisrocher.crt  -noout -text
+
+## Isolated env
+kubectl config view  | grep server
+#docker run --rm -ti -v $PWD:/test -w /test  -v /root/.minikube/ca.crt:/ca.crt #-v /usr/bin/kubectl:/usr/bin/kubectl alpine sh
+
+docker run --rm -ti -v $PWD:/test -w /test  -v /Users/denisrocher/.minikube/ca.crt:/ca.crt -v /usr/bin/kubectl:/usr/bin/kubectl alpine sh --network="host"
+
+
+## Configure kubectl for user
+##
+## recuperamos la información del cluster de kubectl
+kubectl cluster-info  
+
+kubectl config set-cluster minikube --server=https://192.168.1.140:8443 --certificate-authority=/ca.crt
+
+kubectl config set-cluster minikube --server=https://127.0.0.1:58334 --certificate-authority=/ca.crt
+
+
+
+
+kubectl config set-credentials denisrocher --client-certificate=denisrocher.crt --client-key=denisrocher.key
+kubectl config set-context denisrocher --cluster=minikube --user=denisrocher
+kubectl config use-context denisrocher

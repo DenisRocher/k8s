@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume-bbdd
+  labels:
+    type: local
+    app: backend
+    sw: mysql
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /Users/denisrocher/data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim-bbdd
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+    matchLabels:
+      type: "local"
+      sw: "mysql"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-bbdd
+  labels:
+    app: backend
+    sw: mysql
+  annotations:
+    kubernetes.io/change-cause: "Deply inicial BBDD mySql con PV-PVC"
+# Es el manifiesto del ReplicaSet
+spec:
+  replicas: 1
+  # revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: backend
+      sw: mysql
+  template:
+    # Manifiesto de los Pods
+    metadata:
+      labels:
+        app: backend
+        sw: mysql
+    spec:
+      volumes:
+      - name: task-pv-storage-bbdd
+        persistentVolumeClaim:
+          claimName: task-pv-claim-bbdd
+      containers:
+      - name: mysql
+        image: mysql/mysql-server:latest
+        env: 
+          - name: MYSQL_ROOT_PASSWORD
+            value: "123456789"
+          - name: MYSQL_DATABASE
+            value: mydatabasebackend
+        volumeMounts:
+        - name: task-pv-storage-bbdd
+          mountPath: /var/lib/mysql
