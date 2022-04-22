@@ -1,0 +1,3 @@
+aws iam attach-role-policy \
+  --policy-arn arn:aws:iam::354651156855:policy/AWSLoadBalancerControllerIAMPolicy \
+  --role-name AmazonEKSLoadBalancerControllerRole
