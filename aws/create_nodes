@@ -1,9 +1,0 @@
-eksctl create nodegroup \
-  --cluster testclusteraws \
-  --region us-east-1 \
-  --name nodotestaws \
-  --node-type t3.micro \
-  --nodes 2 \
-  --nodes-min 2 \
-  --nodes-max 4 \
-  --asg-access
